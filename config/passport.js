@@ -1,6 +1,7 @@
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const TwitterStrategy = require("passport-twitter").Strategy;
 const GitHubStrategy = require("passport-github2").Strategy;
+const LinkedInStrategy = require("passport-linkedin-oauth2").Strategy;
 
 const User = require("../models/Users");
 
@@ -26,7 +27,6 @@ module.exports = function (passport) {
         console.log("Profile :", profile);
         const newUser = {
           googleId: profile.id,
-          displayName: profile.displayName,
           displayName: profile.displayName,
           firstName: profile.name.givenName,
           lastName: profile.name.familyName,
@@ -100,6 +100,39 @@ module.exports = function (passport) {
           }
         } catch (error) {
           console.error("GitHubStrategy Error=>", Error);
+        }
+      }
+    )
+  );
+  //LinkedInStrategy
+  passport.use(
+    new LinkedInStrategy(
+      {
+        clientID: process.env.LINKEDIN_KEY,
+        clientSecret: process.env.LINKEDIN_SECRET,
+        callbackURL: "/auth/linkedin/callback",
+        scope: ["r_emailaddress", "r_liteprofile"],
+        state: true,
+      },
+      async (accessToken, refreshToken, profile, cb) => {
+        console.log("Profile :", profile);
+        const newUser = {
+          linkedinId: profile.id,
+          displayName: profile.displayName,
+          firstName: profile.name.givenName,
+          lastName: profile.name.familyName,
+          image: profile.photos[0].value,
+        };
+        try {
+          let user = await User.findOne({ linkedinId: profile.id });
+          if (user) {
+            cb(null, user);
+          } else {
+            user = await User.create(newUser);
+            cb(null, user);
+          }
+        } catch (error) {
+          console.error("LinkedInStrategy Error=>", Error);
         }
       }
     )

@@ -47,6 +47,20 @@ router.get(
   }
 );
 
+// @desc   Auth with Linkedin
+// @route  GET /auth/linkedin
+router.get("/linkedin", passport.authenticate("linkedin"));
+
+// @desc   Linkedin auth callback
+// @route  GET /auth/linkedin/callback
+router.get(
+  "/linkedin/callback",
+  passport.authenticate("linkedin", { failureRedirect: "/" }),
+  (req, res) => {
+    res.redirect("/dashboard");
+  }
+);
+
 // @desc   Logout User
 // @route  GET /auth/logout
 router.get("/logout", (req, res) => {
