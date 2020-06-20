@@ -2,6 +2,7 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const TwitterStrategy = require("passport-twitter").Strategy;
 const GitHubStrategy = require("passport-github2").Strategy;
 const LinkedInStrategy = require("passport-linkedin-oauth2").Strategy;
+const FaceBookStrategy = require("passport-facebook").Strategy;
 
 const User = require("../models/Users");
 
@@ -133,6 +134,38 @@ module.exports = function (passport) {
           }
         } catch (error) {
           console.error("LinkedInStrategy Error=>", Error);
+        }
+      }
+    )
+  );
+  // FaceBookStrategy
+  passport.use(
+    new FaceBookStrategy(
+      {
+        clientID: process.env.FACEBOOK_APP_ID,
+        clientSecret: process.env.FACEBOOK_APP_SECRET,
+        callbackURL: "/auth/facebook/callback",
+        profileFields: ["email", "name"],
+      },
+      async (accessToken, refreshToken, profile, cb) => {
+        console.log("Profile :", profile);
+        const newUser = {
+          faceBookId: profile.id,
+          displayName: profile.displayName,
+          firstName: profile.name.givenName,
+          lastName: profile.name.familyName,
+          image: profile.profileUrl,
+        };
+        try {
+          let user = await User.findOne({ faceBookId: profile.id });
+          if (user) {
+            cb(null, user);
+          } else {
+            user = await User.create(newUser);
+            cb(null, user);
+          }
+        } catch (error) {
+          console.error("FaceBookStrategy Error=>", Error);
         }
       }
     )
