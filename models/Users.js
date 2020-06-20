@@ -5,6 +5,10 @@ const UserSchema = new monogoes.Schema({
     type: String,
     require: true,
   },
+  twitterId: {
+    type: String,
+    require: true,
+  },
   displayName: {
     type: String,
     require: true,

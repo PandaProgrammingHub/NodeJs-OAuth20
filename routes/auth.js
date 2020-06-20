@@ -16,6 +16,20 @@ router.get(
   }
 );
 
+// @desc   Auth with Twitter
+// @route  GET /auth/twitter
+router.get("/twitter", passport.authenticate("twitter"));
+
+// @desc   Twitter auth callback
+// @route  GET /auth/twitter/callback
+router.get(
+  "/twitter/callback",
+  passport.authenticate("twitter", { failureRedirect: "/" }),
+  (req, res) => {
+    res.redirect("/dashboard");
+  }
+);
+
 // @desc   Logout User
 // @route  GET /auth/logout
 router.get("/logout", (req, res) => {
