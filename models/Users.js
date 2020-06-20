@@ -9,6 +9,10 @@ const UserSchema = new monogoes.Schema({
     type: String,
     require: true,
   },
+  githubId: {
+    type: String,
+    require: true,
+  },
   displayName: {
     type: String,
     require: true,

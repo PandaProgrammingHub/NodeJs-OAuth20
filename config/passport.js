@@ -1,5 +1,6 @@
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const TwitterStrategy = require("passport-twitter").Strategy;
+const GitHubStrategy = require("passport-github2").Strategy;
 
 const User = require("../models/Users");
 
@@ -40,7 +41,7 @@ module.exports = function (passport) {
             cb(null, user);
           }
         } catch (error) {
-          console.error("Error=>", Error);
+          console.error("GoogleStrategy Error=>", Error);
         }
       }
     )
@@ -58,7 +59,6 @@ module.exports = function (passport) {
         const newUser = {
           twitterId: profile.id,
           displayName: profile.displayName,
-          displayName: profile.displayName,
           image: profile.photos[0].value,
         };
         try {
@@ -70,7 +70,36 @@ module.exports = function (passport) {
             cb(null, user);
           }
         } catch (error) {
-          console.error("Error=>", Error);
+          console.error("TwitterStrategy Error=>", Error);
+        }
+      }
+    )
+  );
+  // GitHubStrategy
+  passport.use(
+    new GitHubStrategy(
+      {
+        clientID: process.env.GITHUB_CLIENT_ID,
+        clientSecret: process.env.GITHUB_CLIENT_SECRET,
+        callbackURL: "/auth/github/callback",
+      },
+      async (accessToken, refreshToken, profile, cb) => {
+        console.log("Profile :", profile);
+        const newUser = {
+          githubId: profile.id,
+          displayName: profile.displayName,
+          image: profile.photos[0].value,
+        };
+        try {
+          let user = await User.findOne({ githubId: profile.id });
+          if (user) {
+            cb(null, user);
+          } else {
+            user = await User.create(newUser);
+            cb(null, user);
+          }
+        } catch (error) {
+          console.error("GitHubStrategy Error=>", Error);
         }
       }
     )

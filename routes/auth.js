@@ -30,6 +30,23 @@ router.get(
   }
 );
 
+// @desc   Auth with Github
+// @route  GET /auth/github
+router.get(
+  "/github",
+  passport.authenticate("github", { scope: ["user:email"] })
+);
+
+// @desc   Github auth callback
+// @route  GET /auth/github/callback
+router.get(
+  "/github/callback",
+  passport.authenticate("github", { failureRedirect: "/" }),
+  (req, res) => {
+    res.redirect("/dashboard");
+  }
+);
+
 // @desc   Logout User
 // @route  GET /auth/logout
 router.get("/logout", (req, res) => {
